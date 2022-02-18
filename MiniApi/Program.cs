@@ -18,9 +18,10 @@ app.MapGet("/TimeConversion/{input}", (string input) =>
     if (input.Contains('-') || input == " ")
     {
         var localDateTime = DateTime.Parse(input);
-        var univDateTime = localDateTime.ToUniversalTime().ToFileTimeUtc();
-        
-        time.Add(new Time { UNIX = univDateTime.ToString() , UTC = univDateTime.ToString() });
+        var univDateTime = localDateTime.ToUniversalTime();
+        Int32 unixTimestamp = (Int32)(DateTime.Now.Subtract(new DateTime(1970, 1, 1))).TotalSeconds;
+        var UnixTiemStamp = DateTimeOffset.Parse(input).ToUnixTimeSeconds();
+        time.Add(new Time { UNIX = UnixTiemStamp.ToString(), UTC = univDateTime.ToString() });
     }
     return Results.Ok(time);
 });
