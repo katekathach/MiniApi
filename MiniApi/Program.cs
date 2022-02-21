@@ -15,7 +15,7 @@ app.MapGet("/", () => "Hello World!");
 app.MapGet("/TimeConversion/{input}", (string input) =>
 {
     List<Time> time = new();
-    if (input.Contains('-') || input == " ")
+    if (input.Contains('-'))
     {
         var localDateTime = DateTime.Parse(input);
         var univDateTime = localDateTime.ToUniversalTime();
@@ -23,9 +23,37 @@ app.MapGet("/TimeConversion/{input}", (string input) =>
         var UnixTiemStamp = DateTimeOffset.Parse(input).ToUnixTimeSeconds();
         time.Add(new Time { UNIX = UnixTiemStamp.ToString(), UTC = univDateTime.ToString() });
     }
+    else
+    {
+        long localDateTime = Int64.Parse(input);
+        System.DateTime dtDateTime = new DateTime(1970, 1, 1, 0, 0, 0, 0, System.DateTimeKind.Utc);
+        dtDateTime = dtDateTime.AddMilliseconds(localDateTime).ToLocalTime();       
+        time.Add(new Time { UNIX = localDateTime.ToString(), UTC = dtDateTime.ToString()});
+    }
     return Results.Ok(time);
 });
 
+app.MapGet("/TimeConversion/", () =>
+{
+    //DateTime today = new DateTime();
+    
+    return Results.Ok(DateTime.Now.ToString("D"));
+});
+
+app.MapGet("/HrsToDays/{hours}", (double hours) =>
+{
+    TimeSpan result = TimeSpan.FromHours(hours);
+
+    return Results.Ok(result.TotalDays + " Days");
+});
+
+app.MapGet("/DaysToHrs/{Days}", (double Days) =>
+{
+    
+    TimeSpan day = TimeSpan.FromDays(Days);
+
+    return Results.Ok(day.TotalHours + " Hours");
+});
 
 ///********************************************************************//
 ///  TODO list mini api
