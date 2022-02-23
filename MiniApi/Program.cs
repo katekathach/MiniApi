@@ -4,8 +4,10 @@ using System.Security.Claims;
 var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddDbContext<TodoDb>(opt => opt.UseInMemoryDatabase("TodoList"));//DI 
 builder.Services.AddDatabaseDeveloperPageExceptionFilter(); //DI
-
+builder.Services.AddEndpointsApiExplorer();
+builder.Services.AddSwaggerGen();
 var app = builder.Build();
+app.UseSwagger();
 
 app.MapGet("/", () => "Hello World!");
 
@@ -30,14 +32,14 @@ app.MapGet("/TimeConversion/{input}", (string input) =>
         dtDateTime = dtDateTime.AddMilliseconds(localDateTime).ToLocalTime();       
         time.Add(new Time { UNIX = localDateTime.ToString(), UTC = dtDateTime.ToString()});
     }
-    return Results.Ok(time);
+    return Results.Ok(time.ToList());
 });
 
 app.MapGet("/TimeConversion/", () =>
 {
     //DateTime today = new DateTime();
-    
-    return Results.Ok(DateTime.Now.ToString("D"));
+
+    return Results.Ok(DateTime.Now.ToString("D")); ;
 });
 
 app.MapGet("/HrsToDays/{hours}", (double hours) =>
@@ -109,7 +111,11 @@ app.MapDelete("/todoitems/{id}", async (int id, TodoDb db) =>
     return Results.NotFound();
 });
 
+
+app.UseSwaggerUI();
 app.Run();
+
+
 class Time{
  public string UTC { get; set; }
     public string UNIX { get; set; }
