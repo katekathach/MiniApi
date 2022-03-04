@@ -6,13 +6,17 @@ builder.Services.AddDbContext<TodoDb>(opt => opt.UseInMemoryDatabase("TodoList")
 builder.Services.AddDatabaseDeveloperPageExceptionFilter(); //DI
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
+
 var app = builder.Build();
+
+
 app.UseSwagger();
+app.UseSwaggerUI();
 
 app.MapGet("/", () => "Hello World!");
 
 ///********************************************************************//
-///  TODO TIME COVERSION mini api
+/// TIME COVERSION mini api
 //*******************************************************************//
 app.MapGet("/TimeConversion/{input}", (string input) =>
 {
@@ -35,12 +39,19 @@ app.MapGet("/TimeConversion/{input}", (string input) =>
     return Results.Ok(time.ToList());
 });
 
-app.MapGet("/TimeConversion/", () =>
+app.MapGet("/TimeConversion/", () => Results.Ok(new 
 {
-    //DateTime today = new DateTime();
+   thisDate =  DateTime.Now.ToString("D")
 
-    return Results.Ok(DateTime.Now.ToString("D")); ;
-});
+
+}));
+
+app.MapGet("ok-object", () => Results.Json(new
+{
+    thisDate = DateTime.Now.ToString("D")
+
+
+}));
 
 app.MapGet("/HrsToDays/{hours}", (double hours) =>
 {
@@ -57,9 +68,19 @@ app.MapGet("/DaysToHrs/{Days}", (double Days) =>
     return Results.Ok(day.TotalHours + " Hours");
 });
 
+
+/***********************************************************************/
+// mini api map get with param with route constraints
+/***********************************************************************/
+app.MapGet("get-params/{age:int}", (int age) => { return $"Age provided was {age}"; }); //explicit map integer to params
+
+app.MapGet("cars/{carId:regex(^[a-z0-9]+$)}", (string carId) => { return $"Car id provide was: {carId}"; });
+
+app.MapGet("BooksISBN/{ISBN:length(13)}", (string ISBN) => { return $"ISBN provide was: {ISBN}"; });
+
 ///********************************************************************//
 ///  TODO list mini api
-//*******************************************************************//
+///*******************************************************************//
 app.MapGet("/todoitems", async (TodoDb db) =>
     await db.Todos.ToListAsync());
 
@@ -112,12 +133,12 @@ app.MapDelete("/todoitems/{id}", async (int id, TodoDb db) =>
 });
 
 
-app.UseSwaggerUI();
+
 app.Run();
 
 
 class Time{
- public string UTC { get; set; }
+    public string UTC { get; set; }
     public string UNIX { get; set; }
 
 }
